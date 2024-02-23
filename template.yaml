@@ -19,6 +19,7 @@ Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
+      BucketName: 'wattson-images-prod'
       CorsConfiguration:
         CorsRules:
         - AllowedHeaders:
@@ -38,8 +39,9 @@ Resources:
     Properties:
       CodeUri: s3UploaderFunction/
       Handler: app.handler
-      Runtime: nodejs12.x
-      MemorySize: 128
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
       Environment:
         Variables:
           UploadBucket: !Ref S3Bucket
@@ -51,7 +53,7 @@ Resources:
           Type: Api
           Properties:
             Path: '/'
-            Method: get
+            Method: GET
 
 Outputs:
   S3UploaderFunction:

@@ -19,21 +19,13 @@ const AWS = require('aws-sdk')
 AWS.config.update({ region: process.env.AWS_REGION || 'us-east-1' })
 const s3 = new AWS.S3()
 
-// Main Lambda entry point
-exports.handler = async (event) => {
-  const result = await getUploadURL()
-  console.log('Result: ', result)
-  return result
-}
-
-const getUploadURL = async function() {
+const getUploadURL = async function(userId, conversationId) {
   const actionId = parseInt(Math.random()*10000000)
   
   const s3Params = {
     Bucket: process.env.UploadBucket,
-    Key:  `${actionId}.jpg`,
-    ContentType: 'image/jpeg' // Update to match whichever content type you need to upload
-    //ACL: 'public-read'      // Enable this setting to make the object publicly readable - only works if the bucket can support public objects
+    Key:  `${userId}/${conversationId}_${actionId}.jpg`,
+    ContentType: 'image/jpeg'
   }
 
   console.log('getUploadURL: ', s3Params)
@@ -47,8 +39,19 @@ const getUploadURL = async function() {
       },
       "body": JSON.stringify({
           "uploadURL": s3.getSignedUrl('putObject', s3Params),
-          "photoFilename": `${actionId}.jpg`
+          "photoFilename": `${conversationId}_${actionId}.jpg`
       })
     })
   })
+}
+
+// Main Lambda entry point
+exports.handler = async (event) => {
+  // Assume userId and conversationId are passed as query parameters
+  // Adjust according to how they're actually passed (e.g., in the body or another method)
+  const userId = event.queryStringParameters.userId;
+  const conversationId = event.queryStringParameters.conversationId;
+  const result = await getUploadURL(userId, conversationId)
+  console.log('Result: ', result)
+  return result
 }
