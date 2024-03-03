@@ -1,15 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Serverless S3 Uploader - upload files to S3 buckets from your web applications using pre-signed URLs.
+Description: Serverless S3 Uploader and Getter - upload files to S3 buckets and generate signed URLs for retrieval.
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Api:
-    # Allows any site to call these APIs (can restrict by replacing asterisk with site name)
-    # Automatically adds AllowMethods with a list of methods for this API
     EndpointConfiguration: EDGE      
     Cors:
-      AllowMethods: "'OPTIONS,GET'"
+      AllowMethods: "'OPTIONS,GET,POST'"
       AllowHeaders: "'Content-Type'"
       AllowOrigin: "'*'" 
   Function:
@@ -34,7 +31,6 @@ Resources:
             - "*"
 
   S3UploaderFunction:
-    # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: s3UploaderFunction/
@@ -52,16 +48,48 @@ Resources:
         HttpPost:
           Type: Api
           Properties:
-            Path: '/'
+            Path: '/upload'
+            Method: POST
+
+  # New Lambda function for generating a signed URL for GET requests
+  S3GetterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3GetterFunction/  # Ensure this points to the directory containing your new Lambda function code
+      Handler: app.handler 
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          UploadBucket: !Ref S3Bucket
+      Policies:
+        - S3ReadPolicy:  # This policy allows the function to read objects from the specified bucket
+            BucketName: !Ref S3Bucket
+      Events:
+        HttpGet:
+          Type: Api
+          Properties:
+            Path: '/get-signed-url'
             Method: GET
 
 Outputs:
   S3UploaderFunction:
-    Description: "Lambda Function ARN"
+    Description: "Lambda Function ARN for Uploader"
     Value: !GetAtt S3UploaderFunction.Arn
+
+  S3GetterFunction:
+    Description: "Lambda Function ARN for Getter"
+    Value: !GetAtt S3GetterFunction.Arn
+
   S3UploaderFunctionIamRole:
-    Description: "Implicit IAM Role created for function"
+    Description: "Implicit IAM Role created for Uploader function"
     Value: !GetAtt S3UploaderFunctionRole.Arn
+  
+  S3GetterFunctionIamRole:
+    Description: "Implicit IAM Role created for Getter function"
+    Value: !GetAtt S3GetterFunctionRole.Arn
+
   S3BucketName:
     Description: S3 bucket
     Value: !Ref S3Bucket

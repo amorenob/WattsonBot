@@ -19,13 +19,13 @@ const AWS = require('aws-sdk')
 AWS.config.update({ region: process.env.AWS_REGION || 'us-east-1' })
 const s3 = new AWS.S3()
 
-const getUploadURL = async function(userId, conversationId) {
-  const actionId = parseInt(Math.random()*10000000)
+const generateGetSignedUrl = async function(objectKey) {
+
   
   const s3Params = {
     Bucket: process.env.UploadBucket,
-    Key:  `${userId}/${conversationId}_${actionId}.jpg`,
-    ContentType: 'image/jpeg'
+    Key:  objectKey,
+    Expires: 60 * 2 // URL expires in 5 minutes, for example
   }
 
   console.log('getUploadURL: ', s3Params)
@@ -38,23 +38,19 @@ const getUploadURL = async function(userId, conversationId) {
         "Access-Control-Allow-Origin": "*"
       },
       "body": JSON.stringify({
-          "uploadURL": s3.getSignedUrl('putObject', s3Params),
-          "photoFilename": `${conversationId}_${actionId}.jpg`
+          "getURL": s3.getSignedUrl('getObject', s3Params),
       })
     })
   })
 }
 
+
 // Main Lambda entry point
 exports.handler = async (event) => {
-  // Parse the body of the event
-  const body = JSON.parse(event.body);
-
-  // Extract userId and conversationId from the body
-  const userId = body.userId;
-  const conversationId = body.conversationId;
-
-  const result = await getUploadURL(userId, conversationId)
+  // Assume userId and conversationId are passed as query parameters
+  // Adjust according to how they're actually passed (e.g., in the body or another method)
+  const objectKey = event.queryStringParameters.objectKey;
+  const result = await generateGetSignedUrl(objectKey)
   console.log('Result: ', result)
   return result
 }
