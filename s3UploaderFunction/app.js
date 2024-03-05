@@ -24,7 +24,7 @@ const getUploadURL = async function(userId, conversationId) {
   
   const s3Params = {
     Bucket: process.env.UploadBucket,
-    Key:  `${userId}/${conversationId}_${actionId}.jpg`,
+    Key:  `${userId}/${conversationId}/img/${actionId}.jpg`,
     ContentType: 'image/jpeg'
   }
 
@@ -39,7 +39,7 @@ const getUploadURL = async function(userId, conversationId) {
       },
       "body": JSON.stringify({
           "uploadURL": s3.getSignedUrl('putObject', s3Params),
-          "photoFilename": `${conversationId}_${actionId}.jpg`
+          "photoFilename": `${conversationId}/img/${actionId}.jpg`
       })
     })
   })

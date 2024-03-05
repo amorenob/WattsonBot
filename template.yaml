@@ -73,6 +73,38 @@ Resources:
             Path: '/get-signed-url'
             Method: GET
 
+  # Lambda function to generate a production report
+  GetProdReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getProdReport/
+      Handler: getProdReport.lambda_handler
+      Runtime: python3.12
+      Environment: 
+        Variables:
+          NREL_API_KEY: 'your-nrel-api-key'
+          GOOGLE_API_KEY: 'your-google-api-key'
+          # weasyprint needs these environment variables to be set
+          GDK_PIXBUF_MODULE_FILE: '/opt/lib/loaders.cache'
+          FONTCONFIG_PATH: '/opt/fonts'
+          XDG_DATA_DIRS: '/opt/lib'
+          UploadBucket: !Ref S3Bucket
+      Layers:  
+        - 'arn:aws:lambda:us-east-1:401938477043:layer:weasyprintLayer312:1'
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+      Events:
+        HttpGet:
+          Type: Api
+          Properties:
+            Path: '/prod-report'
+            Method: GET
+  
 Outputs:
   S3UploaderFunction:
     Description: "Lambda Function ARN for Uploader"
