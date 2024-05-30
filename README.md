@@ -52,7 +52,7 @@ git clone https://github.com/amorenob/WattsonBot.git
 ```
 
 
-## Deplopying the Backend API
+## Deploying the Backend API
 This process will establish the necessary resources for the backend API functions in AWS. Essentially, it sets up a serverless project with an AWS Lambda function, `GetProdReport`. This function is tasked with generating the estimated production report in PDF format. Additionally, it configures the API interface with Botpress, facilitating the communication between the bot and the backend.
 
 
@@ -75,22 +75,25 @@ Navigate to the root directory of the application and run the following commands
     After successfully deploying the application, AWS will provide an API Gateway endpoint. This endpoint is crucial for the functioning of the WattsonBot as it serves as the communication link between the bot and the backend.  
     
     The endpoint will look something like this: `https://<random-id>.execute-api.<region>.amazonaws.com/Prod/prod-report`  
-    You'll need to save this endpoint URL as it will be required in the next steps, specifically when setting up the bot in Botpress. The bot will use this endpoint to send GET requests to generate the solar energy production reports.  
+    You'll need to save this endpoint URL as it will be required in the next steps, specifically when setting up the bot in Botpress. The bot will use this endpoint to send GET requests to generate the solar energy production reports.   
 
-    To find your API Gateway endpoint, navigate to the [API Gateway section](https://console.aws.amazon.com/apigateway/main/apis) of the AWS Management Console. Select your API and you'll find the Invoke URL at the top of the page.  
+    ![alt text](images/ApiEndpoint.png)
+
+    Alternatively, you can find your API Gateway endpoint by navigating to the [API Gateway section](https://console.aws.amazon.com/apigateway/main/apis) of the AWS Management Console. After selecting your API, you'll find the Invoke URL at the top of the page.
 
     Please note that every time you deploy your application, the API Gateway endpoint remains the same unless you delete the stack and recreate it.
 
 ## Setting Up the Botpress Bot
 Now that we have our backend API ready and the endpoint URL at hand, the next step is to set up the Botpress Bot.
 
-1. **Create a Botpress account**
-If you do not already have one and login.[Creating a Botpress account](https://botpress.com/) 
-2. **Import the WattsonBot template**
+1. **Create a Botpress account**  
+If you do not already have one and login. [Creating a Botpress account](https://botpress.com/) 
+2. **Import the WattsonBot template**  
 The bot template is in the file "", follow the next guide to imported and create the bot in Botpress... [Importing a bot template](https://botpress.com/docs/cloud/studio/import-export/) 
 3. **Setting Up the Bot**
-Navigate to the bot settings and configure the environment variables `PVWATTS_API_KEY`,  `GOOGLE_API_KEY` and the  the endpoint URL that you obtained during the backend deployment.
-![Bot config API keys](./images/ConfigBotKeys.png)
+Navigate to the bot settings and configure the environment variables `PVWATTS_API_KEY`,  `GOOGLE_API_KEY` and the  the endpoint URL that you obtained during the backend deployment.  
+
+    ![Bot config API keys](./images/ConfigBotKeys.png)
 
 
 4. **Deploy and Test**
