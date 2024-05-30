@@ -1,3 +1,10 @@
+"""
+This script generates a production report for a solar energy system based on the provided parameters.
+It calculates the annual solar energy production, potential savings, and generates a report in PDF format.
+
+Author: Amoreno
+"""
+
 import os
 import requests
 import json
@@ -15,6 +22,24 @@ def formatNumberToCurrency(number):
     return f"${int(number):,}"
 
 def lambda_handler(event, context):
+    """
+    Lambda function handler for generating a production report.
+
+    Args:
+        event (dict): The event data passed to the Lambda function.
+        context (object): The runtime information of the Lambda function.
+
+    Returns:
+        dict: The response containing the PDF URL of the generated report.
+
+    Raises:
+        KeyError: If any required query parameter is missing in the event data.
+        requests.exceptions.RequestException: If there is an error calling the Google API or NREL API.
+        ValueError: If the response from the NREL API is not in the expected format.
+        IOError: If there is an error saving or reading the location image or production image.
+        RuntimeError: If there is an error filling the word template or converting the docx to pdf.
+
+    """
 
     # Get query parameters
     lat = event['queryStringParameters']['lat']

@@ -73,6 +73,15 @@ def getLocationInfo(lat, lon, google_api_key):
         return None
 
 def calculateOptimalTilt(lat):
+    """
+    Calculate the optimal tilt for a solar panel based on the latitude.
+
+    Parameters:
+    lat (float): The latitude in degrees.
+
+    Returns:
+    float: The optimal tilt angle in degrees.
+    """
     lat = float(lat)
     # Calculate the optimal tilt
     tilt = lat - 2.5
@@ -154,13 +163,25 @@ def lifetimeProductionAcKwh(
     yearlyEnergyDcKwh,
     efficiencyDepreciationFactor,
     installationLifeSpan):
-  return (
-    dcToAcDerate *
-    yearlyEnergyDcKwh *
-    (1 - pow(
-      efficiencyDepreciationFactor,
-      installationLifeSpan)) /
-    (1 - efficiencyDepreciationFactor))
+    """
+    Calculate the lifetime production of AC energy in kilowatt-hours (kWh) for a solar installation.
+
+    Args:
+        dcToAcDerate (float): The DC to AC derate factor.
+        yearlyEnergyDcKwh (float): The yearly energy production in DC kilowatt-hours (kWh).
+        efficiencyDepreciationFactor (float): The efficiency depreciation factor.
+        installationLifeSpan (int): The expected lifespan of the installation in years.
+
+    Returns:
+        float: The lifetime production of AC energy in kilowatt-hours (kWh).
+    """
+    return (
+        dcToAcDerate *
+        yearlyEnergyDcKwh *
+        (1 - pow(
+            efficiencyDepreciationFactor,
+            installationLifeSpan)) /
+        (1 - efficiencyDepreciationFactor))
 
 def billCostModel(
     energy,
@@ -171,6 +192,18 @@ def annualProduction(
     initialAcKwhPerYear,
     efficiencyDepreciationFactor,
     year):
+    """
+    Calculate the annual production of a solar panel system.
+
+    Parameters:
+    - initialAcKwhPerYear (float): The initial AC kWh production per year.
+    - efficiencyDepreciationFactor (float): The efficiency depreciation factor.
+    - year (int): The number of years since the installation.
+
+    Returns:
+    - float: The annual production of the solar panel system.
+
+    """
     return initialAcKwhPerYear * pow(efficiencyDepreciationFactor, year)
 
 
@@ -182,15 +215,31 @@ def annualUtilityBillEstimate(
     costIncreaseFactor,
     discountRate,
     costPerKwh):
-  return (
-    billCostModel(
-      yearlyKWhEnergyConsumption -
-      annualProduction(
-        initialAcKwhPerYear,
-        efficiencyDepreciationFactor,
-        year),costPerKwh) *
-    pow(costIncreaseFactor, year) /
-    pow(discountRate, year))
+    """
+    Calculates the estimated annual utility bill based on the given parameters.
+
+    Parameters:
+    - yearlyKWhEnergyConsumption: The total yearly energy consumption in kilowatt-hours.
+    - initialAcKwhPerYear: The initial AC energy production in kilowatt-hours per year.
+    - efficiencyDepreciationFactor: The factor representing the efficiency depreciation over time.
+    - year: The number of years since the initial AC energy production.
+    - costIncreaseFactor: The factor representing the annual cost increase.
+    - discountRate: The discount rate for future costs.
+    - costPerKwh: The cost per kilowatt-hour.
+
+    Returns:
+    - The estimated annual utility bill.
+
+    """
+    return (
+        billCostModel(
+            yearlyKWhEnergyConsumption -
+            annualProduction(
+                initialAcKwhPerYear,
+                efficiencyDepreciationFactor,
+                year), costPerKwh) *
+        pow(costIncreaseFactor, year) /
+        pow(discountRate, year))
 
 def lifetimeUtilityBillwithSolar(
     yearlyKWhEnergyConsumption,
@@ -200,17 +249,32 @@ def lifetimeUtilityBillwithSolar(
     costIncreaseFactor,
     discountRate,
     costPerKwh):
-  bill = [0] * installationLifeSpan
-  for year in range(installationLifeSpan):
-    bill[year] = annualUtilityBillEstimate(
-      yearlyKWhEnergyConsumption,
-      initialAcKwhPerYear,
-      efficiencyDepreciationFactor,
-      year,
-      costIncreaseFactor,
-      discountRate,
-      costPerKwh)
-  return bill
+    """
+    Calculate the lifetime utility bill with solar.
+
+    Args:
+        yearlyKWhEnergyConsumption (float): The yearly energy consumption in kWh.
+        initialAcKwhPerYear (float): The initial AC kWh per year.
+        efficiencyDepreciationFactor (float): The efficiency depreciation factor.
+        installationLifeSpan (int): The lifespan of the installation in years.
+        costIncreaseFactor (float): The cost increase factor.
+        discountRate (float): The discount rate.
+        costPerKwh (float): The cost per kWh.
+
+    Returns:
+        list: A list of utility bills for each year of the installation lifespan.
+    """
+    bill = [0] * installationLifeSpan
+    for year in range(installationLifeSpan):
+        bill[year] = annualUtilityBillEstimate(
+            yearlyKWhEnergyConsumption,
+            initialAcKwhPerYear,
+            efficiencyDepreciationFactor,
+            year,
+            costIncreaseFactor,
+            discountRate,
+            costPerKwh)
+    return bill
 
 def lifetimeUtilityBillwithoutSolar(
     yearlyKWhEnergyConsumption,
@@ -218,22 +282,46 @@ def lifetimeUtilityBillwithoutSolar(
     discountRate,
     installationLifeSpan,
     costPerKwh):
-  bill = [0] * installationLifeSpan
-  for year in range(installationLifeSpan):
-    bill[year] = billCostModel(
-      yearlyKWhEnergyConsumption,
-      costPerKwh) * pow(costIncreaseFactor, year) / pow(discountRate, year)
-  return bill
+    """
+    Calculate the lifetime utility bill without solar.
+
+    Args:
+        yearlyKWhEnergyConsumption (float): The yearly energy consumption in kilowatt-hours.
+        costIncreaseFactor (float): The factor by which the cost increases each year.
+        discountRate (float): The discount rate used for future cash flows.
+        installationLifeSpan (int): The lifespan of the installation in years.
+        costPerKwh (float): The cost per kilowatt-hour.
+
+    Returns:
+        list: A list of utility bills for each year of the installation lifespan.
+    """
+    bill = [0] * installationLifeSpan
+    for year in range(installationLifeSpan):
+        bill[year] = billCostModel(
+            yearlyKWhEnergyConsumption,
+            costPerKwh) * pow(costIncreaseFactor, year) / pow(discountRate, year)
+    return bill
 
 
 def localInstalationCostModel(installationSize, avgCostPerKw):
-  costPerkw = avgCostPerKw
-  if installationSize > 20:
-     costPerkw = avgCostPerKw - 17.5*130000
-  elif installationSize > 2.5:
-     costPerkw = avgCostPerKw - (installationSize - 2.5)*130000
+    """
+    Calculate the local installation cost based on the installation size and average cost per kilowatt.
 
-  return config.AVG_INSTALLATION_FIXED_COST + installationSize * costPerkw
+    Args:
+        installationSize (float): The size of the installation in kilowatts.
+        avgCostPerKw (float): The average cost per kilowatt.
+
+    Returns:
+        float: The total installation cost.
+
+    """
+    costPerkw = avgCostPerKw
+    if installationSize > 20:
+        costPerkw = avgCostPerKw - 17.5 * 130000
+    elif installationSize > 2.5:
+        costPerkw = avgCostPerKw - (installationSize - 2.5) * 130000
+
+    return config.AVG_INSTALLATION_FIXED_COST + installationSize * costPerkw
 
 def createUtilityBillChart(
         installationCost,

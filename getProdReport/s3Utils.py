@@ -2,6 +2,7 @@ import boto3
 import random
 import uuid
 from typing import Any, Dict
+
 def getGetterSignedUrl(bucket: str, key: str) -> str:
     s3 = boto3.client('s3')
     url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': key})

@@ -52,18 +52,18 @@ git clone https://github.com/amorenob/WattsonBot.git
 ```
 
 
-## Deplopying Backend API
+## Deplopying the Backend API
 This process will establish the necessary resources for the backend API functions in AWS. Essentially, it sets up a serverless project with an AWS Lambda function, `GetProdReport`. This function is tasked with generating the estimated production report in PDF format. Additionally, it configures the API interface with Botpress, facilitating the communication between the bot and the backend.
 
 
 1. [Create an AWS account](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html) if you do not already have one and login.
 
-2. **Setting Up the Serverless project**
+2. **Setting Up the Serverless project**  
 The backend interact with sveral external APIs in order to process the user data an generate the production report, so you will need to edit the [`template.yalm`](./template.yaml) to include the required info. Search for the `GetProdReportFunction` section and include your APIs keys for each service:  
 
     ![API keys config](./images/YalmTemplateConfig_1.png)  
 
-3. **Build and deploy**. 
+3. **Build and deploy**  
 Navigate to the root directory of the application and run the following commands:  
     ```bash
     sam build
@@ -71,7 +71,7 @@ Navigate to the root directory of the application and run the following commands
     ```  
     The `sam build` command will build the source of your application. The `sam deploy --guided` command will package and deploy your application to AWS, guided by prompts for configuration parameters. This will create and deploy the serverless project with AWS Lambda functions. 
 
-4. **API Endpoint**. 
+4. **API Endpoint**  
     After successfully deploying the application, AWS will provide an API Gateway endpoint. This endpoint is crucial for the functioning of the WattsonBot as it serves as the communication link between the bot and the backend.  
     
     The endpoint will look something like this: `https://<random-id>.execute-api.<region>.amazonaws.com/Prod/prod-report`  
@@ -118,13 +118,14 @@ The function is implemented as an AWS Lambda function, which is triggered via an
 - `panels_capacity`: The capacity of each solar panel in the system, measured in watts (W). This value is used to calculate the total number of panels needed for the system.
 - `costPerKwh`: The cost per kilowatt-hour (kWh) of electricity. This value is used to calculate the potential savings from using solar energy.
 
-The function processes this data to calculate the annual solar energy production, the number of solar panels required, and the necessary area for the solar panels. It also computes the financial aspects of the project, including the installation cost, the utility bill with and without solar, and the total cost with solar after incentives. For more information, refer to this [Guide](https://developers.google.com/maps/documentation/solar/calculate-costs-non-us) from the Google Solar API.
+The function processes this data to calculate the annual solar energy production, the number of solar panels required, and the necessary area for the solar panels. It also computes the financial aspects of the project, including the installation cost, the utility bill with and without solar, and the total cost with solar after incentives. 
 
-You can modify the [config.py](./getProdReport/config.py) file to adjust the financial calculations to your needs.  
+Please note that the financial analysis is based on several variables, including the user's location, local installation costs, incentives, and regulations. Therefore, it's crucial to customize these parameters to accurately reflect your specific situation. You can modify these parameters in the [config.py](./getProdReport/config.py) file.
 
 ![alt text](./images/ConfigFinancial.png)
 
-Please note that the financial analysis will vary based on the user's location, local installation costs, incentives, and regulations. Therefore, it's essential to customize these parameters to accurately reflect your specific situation.
+For more information on how these calculations are made, refer to this [Guide](https://developers.google.com/maps/documentation/solar/calculate-costs-non-us) from the Google Solar API.
+
 
 
 To use the `GetProdReport` function, you need to send a GET request to the `/prod-report` endpoint with the required parameters. The function will then generate the report and return a signed URL to access the report in the S3 bucket.
