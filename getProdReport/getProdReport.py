@@ -13,7 +13,11 @@ from solarUtils import *
 from s3Utils import saveDocxInS3, getGetterSignedUrl, getUploaderSignedUrl, getReportKey, getRandomPdfKey, changeMetadata
 from buildReport import fill_word_template, convert_docx_to_pdf_with_api2pdf
 import config
+import logging
 
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 def formatNumber2Decimals(number):
     return round(number, 2)
@@ -179,28 +183,37 @@ def lambda_handler(event, context):
     fill_word_template(template_path, output_path, template_context, img_context)
 
     # Save report to S3
+    logger.info(f"Saving report to S3")
     bucket = os.environ['UploadBucket']
-    docx_key = getReportKey(userId, conversationId, 'docx')
-    docx_url = saveDocxInS3(open(output_path, 'rb'), bucket, docx_key)
-    docx_signed_url = getGetterSignedUrl(bucket, docx_key)
+    try:                            
+        docx_key = getReportKey(userId, conversationId, 'docx')
+        docx_url = saveDocxInS3(open(output_path, 'rb'), bucket, docx_key)
+        docx_signed_url = getGetterSignedUrl(bucket, docx_key)
+    except Exception as e:
+        logger.error(f"Error saving report to S3: {e}")
+        return {
+            'statusCode': 500,
+            'body': 'Error saving report to S3'
+        }
 
     # Convert the docx to pdf
+    logger.info(f"Converting docx to pdf")
     filename = docx_key.split('/')[-1]
     pdf_filename = f"Informe Solar {filename}".replace('.docx', '.pdf')
     pdf_key = docx_key.replace(filename, pdf_filename)
 
-    pdf_signed_url = getUploaderSignedUrl(bucket, pdf_key)
-    conversion_ok = convert_docx_to_pdf_with_api2pdf(config.API2PDF_API_KEY, docx_signed_url, pdf_signed_url, pdf_filename)
-    changeMetadata(bucket, pdf_key)
-    output_url = getGetterSignedUrl(bucket, pdf_key)
-
-
-    if not conversion_ok:
+    try:
+        pdf_signed_url = getUploaderSignedUrl(bucket, pdf_key)
+        conversion_ok = convert_docx_to_pdf_with_api2pdf(config.API2PDF_API_KEY, docx_signed_url, pdf_signed_url, pdf_filename)
+        changeMetadata(bucket, pdf_key)
+        output_url = getGetterSignedUrl(bucket, pdf_key)
+    except Exception as e:
+        logger.error(f"Error converting docx to pdf: {e}")
         return {
             'statusCode': 500,
             'body': 'Error converting docx to pdf'
         }
-    
+
     # Return the signed url
     return {
         'statusCode': 200,

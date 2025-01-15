@@ -37,7 +37,10 @@ Resources:
       CodeUri: getProdReport/
       Handler: getProdReport.lambda_handler
       Runtime: python3.12
-      Timeout: 30
+      Timeout: 60
+      MemorySize: 1024
+      EphemeralStorage:
+        Size: 512
       Environment: 
         Variables:
           NREL_API_KEY: ''

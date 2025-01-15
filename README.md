@@ -35,7 +35,8 @@ This application uses various AWS services and there are costs associated with t
 # Requirements
 
 * **AWS CLI** already configured with Administrator permission
-* **SAM CLI**. You can follow the [official guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) for installation instructions.
+* **SAM CLI** You can follow the [official guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) for installation instructions.
+* **Python 3.x**
 * [Google Maps Geocoding API Key](https://developers.google.com/maps/documentation/geocoding/get-api-key)
 * [PVWatts API Key](https://developer.nrel.gov/docs/solar/pvwatts/v8/)
 * [API2PDF API Key](https://portal.api2pdf.com/register)
