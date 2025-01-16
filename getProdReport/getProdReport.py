@@ -11,7 +11,7 @@ import json
 import math
 from solarUtils import *
 from s3Utils import saveDocxInS3, getGetterSignedUrl, getUploaderSignedUrl, getReportKey, getRandomPdfKey, changeMetadata
-from buildReport import fill_word_template, convert_docx_to_pdf_with_api2pdf
+from buildReport import fill_word_template, convert_docx_to_pdf_with_api2pdf, convert_docx_to_pdf_with_apyhub
 import config
 import logging
 
@@ -203,10 +203,12 @@ def lambda_handler(event, context):
     pdf_key = docx_key.replace(filename, pdf_filename)
 
     try:
-        pdf_signed_url = getUploaderSignedUrl(bucket, pdf_key)
-        conversion_ok = convert_docx_to_pdf_with_api2pdf(config.API2PDF_API_KEY, docx_signed_url, pdf_signed_url, pdf_filename)
-        changeMetadata(bucket, pdf_key)
-        output_url = getGetterSignedUrl(bucket, pdf_key)
+        #pdf_signed_url = getUploaderSignedUrl(bucket, pdf_key)
+        #conversion_ok = convert_docx_to_pdf_with_api2pdf(config.API2PDF_API_KEY, docx_signed_url, pdf_signed_url, pdf_filename)
+        #changeMetadata(bucket, pdf_key)
+        #output_url = getGetterSignedUrl(bucket, pdf_key)
+        output_url = convert_docx_to_pdf_with_apyhub(config.APYHUB_API_KEY, docx_signed_url, pdf_key, pdf_filename)
+        
     except Exception as e:
         logger.error(f"Error converting docx to pdf: {e}")
         return {

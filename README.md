@@ -2,7 +2,7 @@
 
 WattsonBot is a Botpress implementation designed to assist in the estimation and implementation of off-grid solar systems in Colombia. This bot is created to guide users through the process of evaluating their energy needs and providing an estimate of the appropriate solar system size and cost.
 
-For a live demo of this Bot got to: https://mediafiles.botpress.cloud/a12b9dbb-13e2-492a-89b7-26a7358d0d79/webchat/bot.html
+For a live demo of this Bot got to: https://cdn.botpress.cloud/webchat/v2.2/shareable.html?configUrl=https://files.bpcontent.cloud/2024/10/15/11/20241015110429-BO9U0PV4.json
 
 # Workflow
 1. User initiates interaction with the bot.
